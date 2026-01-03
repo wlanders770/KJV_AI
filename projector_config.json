@@ -6,8 +6,8 @@
         31102,
         128
       ],
-      "tensorPath": "https://media.githubusercontent.com/media/wlanders770/KJV_AI/refs/heads/main/vectors.tsv",
-      "metadataPath": "https://media.githubusercontent.com/media/wlanders770/KJV_AI/refs/heads/main/metadata.tsv"
+      "tensorPath": "https://cdn.jsdelivr.net/gh/wlanders770/KJV_AI@main/vectors.tsv",
+      "metadataPath": "https://cdn.jsdelivr.net/gh/wlanders770/KJV_AI@main/metadata.tsv"
     }
   ]
 }
