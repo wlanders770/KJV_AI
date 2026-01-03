@@ -1,0 +1,13 @@
+{
+  "embeddings": [
+    {
+      "tensorName": "KJV tensor",
+      "tensorShape": [
+        31102,
+        128
+      ],
+      "tensorPath": "https://cdn.jsdelivr.net/gh/wlanders770/KJV_AI@main/vectors.tsv",
+      "metadataPath": "https://cdn.jsdelivr.net/gh/wlanders770/KJV_AI@main/metadata.tsv"
+    }
+  ]
+}
