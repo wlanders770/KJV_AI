@@ -1,0 +1,27 @@
+<div class="chat-container">
+  <div class="chat-messages" #messagesContainer>
+    @for (msg of messages(); track $index) {
+      <div class="message" [class.user]="msg.type === 'user'" [class.assistant]="msg.type === 'assistant'">
+        <div class="message-bubble">
+          <div class="message-text" [innerText]="msg.content"></div>
+        </div>
+      </div>
+    }
+    @if (loading()) {
+      <div class="message assistant">
+        <div class="message-bubble">
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="chat-input">
+    <input pInputText type="text" [(ngModel)]="userInput"
+           placeholder="Ask a question about the Bible..."
+           (keydown)="onKeydown($event)" />
+    <p-button icon="pi pi-send" [loading]="loading()" (onClick)="sendMessage()" />
+  </div>
+</div>

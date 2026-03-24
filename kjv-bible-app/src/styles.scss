@@ -1,0 +1,59 @@
+@import 'primeicons/primeicons.css';
+
+// Global resets
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --toolbar-h: 3.25rem;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--p-surface-ground);
+  color: var(--p-text-color);
+  overflow: hidden;
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--p-surface-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--p-surface-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--p-surface-500);
+}
+
+// PrimeNG toolbar override for dark header
+.p-toolbar.app-toolbar {
+  .p-button-text {
+    color: white !important;
+  }
+}
+
+// Drawers should not block the main content when non-modal
+.p-drawer-mask {
+  pointer-events: none;
+}
+
+// Mobile overrides
+@media (max-width: 768px) {
+  .p-drawer {
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+}

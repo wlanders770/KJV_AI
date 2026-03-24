@@ -1,0 +1,182 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;       // dynamic viewport height (respects mobile address bar)
+  overflow: hidden;
+  --toolbar-h: 3.25rem; // exposed so children can calc remaining space
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-radius: 0;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  border: none;
+  padding: 0.5rem 1rem;
+  height: var(--toolbar-h);
+  min-height: var(--toolbar-h);
+
+  :deep(.p-toolbar-start),
+  :deep(.p-toolbar-center),
+  :deep(.p-toolbar-end) {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+.breadcrumb-text {
+  color: white;
+  font-family: 'Georgia', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.search-bar-desktop {
+  display: flex;
+  align-items: center;
+}
+
+// Mobile search bar — sits below toolbar
+.mobile-search-bar {
+  display: none;
+  background: linear-gradient(135deg, #34495e, #3d566e);
+  padding: 0.4rem 0.75rem;
+  z-index: 99;
+
+  app-search-bar {
+    width: 100%;
+  }
+}
+
+.reader-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--p-text-color);
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+// Desktop: show full sign-in button, hide icon-only button
+.auth-btn-mobile {
+  display: none !important;
+}
+
+// ─── Mobile ─────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  :host {
+    --toolbar-h: 2.75rem;
+  }
+
+  .app-toolbar {
+    padding: 0.3rem 0.5rem;
+  }
+
+  .breadcrumb-text {
+    font-size: 0.85rem;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Hide desktop search bar, show mobile search bar
+  .search-bar-desktop {
+    display: none !important;
+  }
+
+  .mobile-search-bar {
+    display: block;
+  }
+
+  // Show icon-only sign-in, hide label version
+  .auth-btn-desktop {
+    display: none !important;
+  }
+
+  .auth-btn-mobile {
+    display: inline-flex !important;
+  }
+
+  // Auth user button — icon only on mobile
+  :deep(.auth-user-btn) {
+    &.p-button {
+      .p-button-label {
+        display: none !important;
+      }
+    }
+  }
+}
+
+// Drawer overrides
+:deep(.nav-drawer) {
+  .p-drawer-content {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  app-bible-navigator {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+:deep(.chat-drawer) {
+  .p-drawer-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  app-chat-drawer {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+// Auth button styling — must be visible on dark toolbar
+:deep(.auth-signin-btn),
+:deep(.auth-user-btn) {
+  &.p-button {
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    background: transparent !important;
+    font-size: 0.85rem;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-color: white !important;
+    }
+
+    .p-button-icon {
+      color: white !important;
+    }
+
+    .p-button-label {
+      color: white !important;
+    }
+  }
+}

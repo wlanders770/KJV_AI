@@ -1,0 +1,147 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-kjv
+    restart: always
+    networks:
+      - kjv_network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: chroma-kjv
+    restart: always
+    networks:
+      - kjv_network
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/data
+      - ALLOW_RESET=FALSE
+      - ANONYMIZED_TELEMETRY=FALSE
+    volumes:
+      - chroma_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8000'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+    container_name: kjv-webapp
+    restart: always
+    networks:
+      - kjv_network
+    environment:
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - OLLAMA_URL=${OLLAMA_URL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  rag-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.rag
+    container_name: kjv-rag-api
+    restart: always
+    networks:
+      - kjv_network
+    environment:
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - OLLAMA_URL=${OLLAMA_URL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics
+    container_name: kjv-analytics
+    restart: always
+    networks:
+      - kjv_network
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8002/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: kjv-frontend
+    restart: always
+    networks:
+      - kjv_network
+      - caddy_network
+    depends_on:
+      webapp:
+        condition: service_healthy
+      analytics:
+        condition: service_healthy
+
+networks:
+  kjv_network:
+    driver: bridge
+  caddy_network:
+    external: true
+    name: learningsystem_default
+
+volumes:
+  mysql_data:
+  chroma_data:

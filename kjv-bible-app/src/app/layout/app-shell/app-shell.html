@@ -1,0 +1,78 @@
+<!-- Top Toolbar -->
+<p-toolbar styleClass="app-toolbar">
+  <ng-template #start>
+    <p-button icon="pi pi-bars" [text]="true" severity="contrast"
+              (onClick)="nav.toggleNav()" pTooltip="Bible Navigator" />
+
+    <!-- Back / Forward buttons -->
+    <p-button icon="pi pi-arrow-left" [text]="true" severity="contrast"
+              [disabled]="!historyService.canGoBack()"
+              (onClick)="goBack()" pTooltip="Go Back" />
+    <p-button icon="pi pi-arrow-right" [text]="true" severity="contrast"
+              [disabled]="!historyService.canGoForward()"
+              (onClick)="goForward()" pTooltip="Go Forward" />
+
+    <span class="breadcrumb-text">{{ nav.breadcrumb() }}</span>
+  </ng-template>
+
+  <ng-template #center>
+    <app-search-bar class="search-bar-desktop" />
+  </ng-template>
+
+  <ng-template #end>
+    <p-button icon="pi pi-comments" [text]="true" severity="contrast"
+              (onClick)="nav.toggleChat()" pTooltip="Ask About Scripture" />
+
+    <!-- User auth button -->
+    @if (auth.isLoggedIn()) {
+      <p-button [label]="auth.displayName()" icon="pi pi-user"
+                [outlined]="true" severity="contrast" size="small"
+                (onClick)="confirmLogout()" pTooltip="Click to sign out"
+                styleClass="auth-user-btn" />
+    } @else {
+      <p-button icon="pi pi-sign-in"
+                [outlined]="true" severity="contrast" size="small"
+                (onClick)="openAuth()" pTooltip="Sign in to sync reading history"
+                styleClass="auth-signin-btn"
+                class="auth-btn-desktop" label="Sign In" />
+      <p-button icon="pi pi-sign-in" [text]="true" severity="contrast"
+                (onClick)="openAuth()"
+                class="auth-btn-mobile" />
+    }
+  </ng-template>
+</p-toolbar>
+
+<!-- Mobile search bar (below toolbar) -->
+<div class="mobile-search-bar">
+  <app-search-bar />
+</div>
+
+<!-- Bible Navigator Sidebar (left) -->
+<p-drawer [(visible)]="nav.navOpen" [modal]="mobileMode" position="left"
+          styleClass="nav-drawer" [style]="{ width: '340px' }">
+  <ng-template #header>
+    <span class="drawer-title">
+      <i class="pi pi-book"></i> Bible Navigator
+    </span>
+  </ng-template>
+  <app-bible-navigator />
+</p-drawer>
+
+<!-- Main Reader Area -->
+<main class="reader-main">
+  <app-bible-reader />
+</main>
+
+<!-- Chat Drawer (right) -->
+<p-drawer [(visible)]="nav.chatOpen" [modal]="mobileMode" position="right"
+          styleClass="chat-drawer" [style]="{ width: mobileMode ? '100%' : '380px' }">
+  <ng-template #header>
+    <span class="drawer-title">
+      <i class="pi pi-comments"></i> Ask About Scripture
+    </span>
+  </ng-template>
+  <app-chat-drawer />
+</p-drawer>
+
+<!-- Auth Dialog -->
+<app-auth-dialog #authDialog />

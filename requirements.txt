@@ -1,0 +1,10 @@
+chromadb
+requests
+mysql-connector-python
+fastapi
+uvicorn[standard]
+pydantic
+ollama
+flask
+gunicorn
+mcp[cli]

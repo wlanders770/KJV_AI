@@ -1,0 +1,58 @@
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+:host ::ng-deep .mode-toggle {
+  width: 100%;
+
+  .p-selectbutton {
+    display: flex;
+    width: 100%;
+  }
+
+  .p-button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+.auth-error {
+  background: var(--p-red-50);
+  color: var(--p-red-700);
+  border: 1px solid var(--p-red-200);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--p-text-secondary-color);
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+:host ::ng-deep .auth-submit {
+  width: 100%;
+  margin-top: 0.25rem;
+
+  .p-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

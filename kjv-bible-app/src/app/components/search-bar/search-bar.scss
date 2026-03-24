@@ -1,0 +1,136 @@
+:host {
+  position: relative;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  p-iconfield {
+    flex: 1;
+
+    input {
+      width: 220px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    width: 100%;
+
+    p-iconfield {
+      flex: 1;
+
+      input {
+        width: 100%;
+      }
+    }
+  }
+
+  :deep(.search-type-toggle) {
+    .p-selectbutton .p-button {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+:deep(.search-type-toggle) {
+  .p-selectbutton .p-button {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+.search-results-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  min-width: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-surface-300);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--p-text-muted-color);
+}
+
+.result-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--p-surface-100);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--p-primary-50);
+  }
+
+  strong {
+    color: var(--p-text-color);
+    font-size: 0.9rem;
+  }
+
+  .similarity {
+    color: #27ae60;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--p-text-muted-color);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.loading-text,
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: var(--p-text-muted-color);
+}
+
+@media (max-width: 768px) {
+  .search-results {
+    min-width: unset;
+    position: fixed;
+    left: 0.5rem;
+    right: 0.5rem;
+    top: calc(var(--toolbar-h, 2.75rem) + 3rem);
+  }
+}

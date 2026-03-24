@@ -1,0 +1,37 @@
+<div class="search-container">
+  <p-selectButton [options]="searchTypeOptions" [(ngModel)]="searchType"
+                  [allowEmpty]="false" styleClass="search-type-toggle" />
+  <p-iconfield>
+    <p-inputicon styleClass="pi pi-search" />
+    <input pInputText type="text" [(ngModel)]="query"
+           placeholder="Search the Bible..."
+           (keydown)="onKeydown($event)" />
+  </p-iconfield>
+  <p-button icon="pi pi-search" [loading]="loading()" (onClick)="search()" />
+</div>
+
+<!-- Search Results Dropdown -->
+@if (showResults()) {
+  <div class="search-results-overlay" (click)="closeResults()"></div>
+  <div class="search-results">
+    <div class="results-header">
+      <span>Results ({{ searchResults().length }})</span>
+      <button class="close-btn" (click)="closeResults()">&times;</button>
+    </div>
+    @if (loading()) {
+      <p class="loading-text">Searching...</p>
+    } @else if (searchResults().length === 0) {
+      <p class="no-results">No results found</p>
+    } @else {
+      @for (v of searchResults(); track $index) {
+        <div class="result-item" (click)="navigateToResult(v)">
+          <strong>{{ v.reference || v.book + ' ' + v.chapter + ':' + v.verse }}</strong>
+          @if (v.similarity) {
+            <span class="similarity">{{ (v.similarity * 100) | number:'1.0-0' }}%</span>
+          }
+          <p>{{ v.text }}</p>
+        </div>
+      }
+    }
+  </div>
+}

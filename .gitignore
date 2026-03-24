@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+
+# Data artifacts
+chroma_data/
+vectors.tsv
+metadata.tsv
+
+# Node
+kjv-bible-app/node_modules/
+kjv-bible-app/dist/
+kjv-bible-app/.angular/
+
+# IDE
+.vscode/
+.idea/

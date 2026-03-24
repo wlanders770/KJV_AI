@@ -1,0 +1,155 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+.navigator-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.nav-column {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--p-surface-200);
+  min-width: 0;
+  overflow: hidden;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.books-column {
+  flex: 1.2;
+  min-width: 120px;
+}
+
+.chapters-column,
+.verses-column {
+  flex: 0.8;
+  min-width: 80px;
+}
+
+.column-header {
+  padding: 0.6rem 0.75rem;
+  background: var(--p-surface-100);
+  border-bottom: 2px solid var(--p-surface-300);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--p-text-color);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-box {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--p-surface-200);
+
+  p-iconfield {
+    width: 100%;
+  }
+
+  input {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--p-surface-100);
+  font-size: 0.9rem;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: var(--p-primary-50);
+  }
+
+  &.selected {
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+    font-weight: 600;
+  }
+}
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+  gap: 4px;
+  padding: 0.5rem;
+}
+
+.num-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.25rem;
+  border: 1px solid var(--p-surface-200);
+  border-radius: 6px;
+  background: var(--p-surface-0);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  min-height: 36px;
+
+  &:hover {
+    background: var(--p-primary-50);
+    border-color: var(--p-primary-200);
+  }
+
+  &.selected {
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+    border-color: var(--p-primary-color);
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 768px) {
+  .navigator-container {
+    flex-direction: column;
+  }
+
+  .nav-column {
+    border-right: none;
+    border-bottom: 1px solid var(--p-surface-200);
+  }
+
+  // Books list gets most of the space
+  .books-column {
+    flex: 1;
+    min-height: 0;
+  }
+
+  // Chapters and verses are compact at the bottom
+  .chapters-column,
+  .verses-column {
+    flex: 0 0 auto;
+    max-height: 30vh;
+  }
+
+  .number-grid {
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  }
+}

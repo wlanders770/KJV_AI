@@ -1,0 +1,93 @@
+<!-- Empty state (shown when no chapter loaded yet) -->
+@if (rows().length === 0) {
+  <div class="empty-state">
+    <i class="pi pi-book" style="font-size: 3rem; color: var(--p-primary-color);"></i>
+    <h3>Welcome to the KJV Bible</h3>
+    <p>Click <i class="pi pi-bars"></i> to open the navigator and select a book to begin reading.</p>
+  </div>
+}
+
+<!-- Scrollable reader viewport -->
+<div #scrollContainer
+     class="reader-viewport"
+     [style.height.px]="viewportHeight()"
+     [class.hidden]="rows().length === 0"
+     (scroll)="onScroll()">
+
+  @for (row of rows(); track row.id) {
+    <div class="virtual-row" [attr.data-row-id]="row.id">
+
+      @switch (row.type) {
+        <!-- ═══ Book divider ═══ -->
+        @case ('book-divider') {
+          <div class="book-divider">
+            <span class="book-divider-text">{{ row.book }}</span>
+          </div>
+        }
+
+        <!-- ═══ Chapter header ═══ -->
+        @case ('chapter-header') {
+          <div class="chapter-header">
+            <h2 class="chapter-title">Chapter {{ row.chapter }}</h2>
+          </div>
+        }
+
+        <!-- ═══ Verse ═══ -->
+        @case ('verse') {
+          <div class="verse-row"
+               [class.highlighted]="row.verse?.verse === nav.highlightedVerse()
+                                    && row.book === nav.currentBook()
+                                    && row.chapter === nav.currentChapter()">
+            <span class="verse-number"
+                  [class.pulse]="row.verse?.verse === nav.highlightedVerse()
+                                 && row.book === nav.currentBook()
+                                 && row.chapter === nav.currentChapter()">
+              {{ row.verse?.verse }}
+            </span>
+            <span class="verse-text">{{ row.verse?.text }}</span>
+            <a class="xref-btn"
+               (click)="toggleCrossRefs(row.book, row.chapter, row.verse!.verse, $event)"
+               title="Cross-references">⊕</a>
+
+            <!-- Cross-reference popup -->
+            @if (openPopup() === refKey(row.book, row.chapter, row.verse!.verse)
+                 && crossRefs()[refKey(row.book, row.chapter, row.verse!.verse)]) {
+              <div class="xref-popup" (click)="$event.stopPropagation()">
+                <div class="xref-header">
+                  Cross-References ({{ crossRefs()[refKey(row.book, row.chapter, row.verse!.verse)].length }})
+                </div>
+                @for (ref of crossRefs()[refKey(row.book, row.chapter, row.verse!.verse)]; track ref.reference) {
+                  <a class="xref-link" (click)="onCrossRefClick(ref.reference, $event)">
+                    {{ ref.reference }}
+                    <span class="xref-votes">({{ ref.votes > 0 ? '+' : '' }}{{ ref.votes }})</span>
+                  </a>
+                }
+                @if (crossRefs()[refKey(row.book, row.chapter, row.verse!.verse)].length === 0) {
+                  <p class="no-refs">No cross-references found</p>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ═══ Chapter separator ═══ -->
+        @case ('separator') {
+          <div class="chapter-separator"></div>
+        }
+      }
+    </div>
+  }
+</div>
+
+<!-- Verse Preview Overlay -->
+@if (previewRef()) {
+  <div class="preview-overlay" (click)="closePreview()"></div>
+  <div class="preview-popup">
+    <div class="preview-header">
+      <strong>{{ previewRef() }}</strong>
+      <button class="preview-close" (click)="closePreview()">&times;</button>
+    </div>
+    <p class="preview-text">{{ previewText() }}</p>
+    <button class="preview-navigate" (click)="navigateToRef(previewRef()!)">Go to This Verse →</button>
+  </div>
+}

@@ -1,0 +1,57 @@
+<div class="navigator-container">
+  <!-- Books Column -->
+  <div class="nav-column books-column">
+    <div class="column-header">Books ({{ nav.books().length }})</div>
+    <div class="filter-box">
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" placeholder="Filter..."
+               [ngModel]="bookFilter()" (ngModelChange)="bookFilter.set($event)" />
+      </p-iconfield>
+    </div>
+    <div class="scroll-area">
+      <ul class="nav-list">
+        @for (book of filteredBooks(); track book.name) {
+          <li class="nav-item" [class.selected]="book.name === nav.currentBook()"
+              (click)="onSelectBook(book.name)">
+            {{ book.name }}
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <!-- Chapters Column -->
+  @if (nav.currentBook()) {
+    <div class="nav-column chapters-column">
+      <div class="column-header">Chapters ({{ chapterCount() }})</div>
+      <div class="scroll-area">
+        <div class="number-grid">
+          @for (ch of chapters(); track ch) {
+            <button class="num-btn" [class.selected]="ch === nav.currentChapter()"
+                    (click)="onSelectChapter(ch)">
+              {{ ch }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Verses Column -->
+  @if (nav.currentChapter()) {
+    <div class="nav-column verses-column">
+      <div class="column-header">Verses ({{ verses().length }})</div>
+      <div class="scroll-area">
+        <div class="number-grid">
+          @for (v of verses(); track v) {
+            <button class="num-btn" [class.selected]="v === nav.currentVerse()"
+                    (click)="onSelectVerse(v)">
+              {{ v }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

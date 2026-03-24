@@ -1,0 +1,50 @@
+<p-dialog [visible]="visible()" (visibleChange)="visible.set($event)"
+          [modal]="true" [closable]="true" [draggable]="false"
+          [style]="{ width: '90vw', 'max-width': '380px' }" header="Bible Reader Account"
+          [breakpoints]="{ '768px': '95vw' }">
+
+  <div class="auth-form">
+    <!-- Mode toggle -->
+    <p-selectbutton [options]="modeOptions" [ngModel]="mode()"
+                    (ngModelChange)="mode.set($event); error.set('')"
+                    styleClass="mode-toggle" [allowEmpty]="false" />
+
+    <!-- Error message -->
+    @if (error()) {
+      <div class="auth-error">
+        <i class="pi pi-exclamation-circle"></i>
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Username -->
+    <div class="field">
+      <label for="username">Username</label>
+      <input pInputText id="username" [(ngModel)]="username"
+             placeholder="Enter username" autocomplete="username" />
+    </div>
+
+    <!-- Display name (register only) -->
+    @if (mode() === 'register') {
+      <div class="field">
+        <label for="displayName">Display Name</label>
+        <input pInputText id="displayName" [(ngModel)]="displayName"
+               placeholder="How you'd like to be called" />
+      </div>
+    }
+
+    <!-- Password -->
+    <div class="field">
+      <label for="password">Password</label>
+      <input pInputText id="password" type="password" [(ngModel)]="password"
+             placeholder="Enter password" autocomplete="current-password"
+             (keydown.enter)="submit()" />
+    </div>
+
+    <!-- Submit -->
+    <p-button [label]="mode() === 'login' ? 'Sign In' : 'Create Account'"
+              icon="pi pi-sign-in" [loading]="loading()"
+              (onClick)="submit()" styleClass="auth-submit" />
+  </div>
+
+</p-dialog>

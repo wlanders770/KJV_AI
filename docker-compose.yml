@@ -1,0 +1,175 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-kjv
+    restart: always
+    networks:
+      - kjv_network
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: chroma-kjv
+    restart: always
+    networks:
+      - kjv_network
+    ports:
+      - "8000:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/data
+      - ALLOW_RESET=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    volumes:
+      - chroma_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/api/v1/version"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  rag-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.rag
+    container_name: kjv-rag-api
+    restart: always
+    networks:
+      - kjv_network
+    ports:
+      - "8001:8001"
+    environment:
+      - OLLAMA_URL=${OLLAMA_URL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - CHROMA_HOST=${CHROMA_HOST}
+      - CHROMA_PORT=${CHROMA_PORT}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    depends_on:
+      mysql:
+        condition: service_started
+      chroma:
+        condition: service_started
+    volumes:
+      - ./kjv_data:/app/data
+      - ./KJV.txt:/app/KJV.txt:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics
+    container_name: kjv-analytics
+    restart: always
+    networks:
+      - kjv_network
+    ports:
+      - "8002:8002"
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    depends_on:
+      mysql:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8002/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+    container_name: kjv-webapp
+    restart: always
+    networks:
+      - kjv_network
+    ports:
+      - "5000:5000"
+    environment:
+      - CHROMA_HOST=${CHROMA_HOST}
+      - CHROMA_PORT=${CHROMA_PORT}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - OLLAMA_URL=${OLLAMA_URL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui-kjv
+    restart: always
+    networks:
+      - kjv_network
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_URL}
+      - OPENAI_API_BASE_URLS=http://rag-api:8001/v1
+      - OPENAI_API_KEYS=dummy-key
+      - VECTOR_DB=chroma
+      - CHROMA_HTTP_HOST=${CHROMA_HOST}
+      - CHROMA_HTTP_PORT=${CHROMA_PORT}
+      - CHROMA_TENANT=${CHROMA_TENANT}
+      - CHROMA_DATABASE=${CHROMA_DATABASE}
+      - ENABLE_PERSISTENT_CONFIG=False
+    volumes:
+      - open-webui_data:/app/backend/data
+      - ./docs:/app/backend/data/docs
+    depends_on:
+      - chroma
+      - rag-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  kjv_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  chroma_data:
+  open-webui_data:

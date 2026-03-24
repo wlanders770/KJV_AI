@@ -1,0 +1,299 @@
+// ─── CDK Virtual Scroll Viewport ──────────────────────────────
+// Height is set via [style.height.px]="viewportHeight()" on the
+// cdk-virtual-scroll-viewport element — bypasses CSS chain issues.
+:host {
+  display: block;
+  overflow: hidden;
+}
+
+.reader-viewport {
+  // height set via inline style binding in the template
+  background: var(--p-surface-0);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.virtual-row {
+  padding: 0 3rem;
+}
+
+// Sentinels for infinite scroll — invisible trigger elements
+.sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+// Book divider — shown when a new book starts
+.book-divider {
+  text-align: center;
+  padding: 2.5rem 0 1rem;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--p-primary-color),
+      transparent
+    );
+  }
+}
+
+.book-divider-text {
+  position: relative;
+  background: var(--p-surface-0);
+  padding: 0 1.5rem;
+  font-family: 'Georgia', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--p-primary-color);
+  letter-spacing: 1px;
+}
+
+.chapter-header {
+  padding-top: 0.5rem;
+}
+
+.chapter-title {
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--p-text-color);
+  margin-bottom: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--p-surface-200);
+}
+
+.chapter-separator {
+  height: 1px;
+  margin: 1rem 0;
+  background: var(--p-surface-200);
+}
+
+// ─── Verse rows (block layout for virtual scroll) ─────────────
+.verse-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  position: relative;
+  transition: background 0.3s;
+
+  &.highlighted {
+    background: rgba(255, 243, 205, 0.6);
+    border-radius: 4px;
+  }
+}
+
+.verse-number {
+  font-weight: 700;
+  color: var(--p-primary-700);
+  font-size: 0.8em;
+  min-width: 1.8em;
+  text-align: right;
+  flex-shrink: 0;
+  cursor: default;
+
+  &.pulse {
+    animation: highlightPulse 2s ease-in-out;
+    background: #fff3cd;
+    padding: 2px 5px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+  }
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    background: #fff3cd;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+  }
+  50% {
+    background: #ffc107;
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
+  }
+}
+
+.verse-text {
+  color: var(--p-text-color);
+  flex: 1;
+}
+
+.xref-btn {
+  cursor: pointer;
+  color: var(--p-primary-color);
+  font-size: 0.8em;
+  vertical-align: super;
+  margin-left: 3px;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--p-primary-700);
+  }
+}
+
+.xref-popup {
+  position: absolute;
+  background: var(--p-surface-0);
+  border: 2px solid var(--p-primary-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 500;
+  max-width: 320px;
+  max-height: 300px;
+  overflow-y: auto;
+  left: 0;
+  top: 100%;
+  margin-top: 4px;
+}
+
+.xref-header {
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.xref-link {
+  display: block;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--p-primary-color);
+  font-size: 0.85rem;
+
+  &:hover {
+    text-decoration: underline;
+    background: var(--p-primary-50);
+  }
+}
+
+.xref-votes {
+  color: var(--p-text-muted-color);
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.no-refs {
+  color: var(--p-text-muted-color);
+  font-size: 0.85rem;
+}
+
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+  color: var(--p-text-muted-color);
+
+  h3 {
+    font-family: 'Georgia', serif;
+    font-size: 1.5rem;
+    color: var(--p-text-color);
+  }
+
+  p {
+    font-size: 1rem;
+    text-align: center;
+    max-width: 400px;
+  }
+}
+
+// Preview popup
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}
+
+.preview-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--p-surface-0);
+  border: 2px solid var(--p-primary-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  z-index: 1000;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--p-surface-200);
+}
+
+.preview-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--p-text-muted-color);
+}
+
+.preview-text {
+  font-family: 'Georgia', serif;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.preview-navigate {
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  float: right;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .virtual-row {
+    padding: 0 1rem;
+  }
+
+  .book-divider-text {
+    font-size: 1.4rem;
+  }
+
+  .chapter-title {
+    font-size: 1.2rem;
+  }
+
+  .verse-row {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
